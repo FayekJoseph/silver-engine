@@ -1,2 +1,4 @@
 # silver-engine
-combination between ZX enhanced that focus on security and ZX the general Ui repo with App implementation
+
+## Description
+Magical engine repository made by merging ZX and ZX enhanced, combining ZX enhanced's security focus with ZX's general UI and app implementation.
