@@ -2,12 +2,6 @@
 target/
 generated/
 
-# node
-node_modules/
-
-# PITR snapshot stores
-.pitr/
-
 # dependencies
 Dependencies.toml
 
