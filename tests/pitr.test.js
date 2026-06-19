@@ -139,6 +139,37 @@ describe('PITR', () => {
     expect(result.errors).toContain('unexpected in target: extra.txt');
   });
 
+  test('compare evaluates added, removed, and modified files between two snapshots', () => {
+    write(target, 'keep.txt', 'same');
+    write(target, 'gone.txt', 'will be removed');
+    write(target, 'edit.txt', 'before');
+    const a = pitr.snapshot({ label: 'A' });
+
+    fs.rmSync(path.join(target, 'gone.txt'));
+    fs.writeFileSync(path.join(target, 'edit.txt'), 'after');
+    write(target, 'new.txt', 'added');
+    const b = pitr.snapshot({ label: 'B' });
+
+    const diff = pitr.compare(a.id, b.id);
+    expect(diff.identical).toBe(false);
+    expect(diff.added).toEqual(['new.txt']);
+    expect(diff.removed).toEqual(['gone.txt']);
+    expect(diff.modified).toEqual(['edit.txt']);
+    expect(diff.unchanged).toBe(1); // keep.txt
+  });
+
+  test('compare reports identical snapshots of unchanged state', () => {
+    write(target, 'a.txt', 'stable');
+    const a = pitr.snapshot();
+    const b = pitr.snapshot();
+
+    const diff = pitr.compare(a.id, b.id);
+    expect(diff.identical).toBe(true);
+    expect(diff.added).toEqual([]);
+    expect(diff.removed).toEqual([]);
+    expect(diff.modified).toEqual([]);
+  });
+
   test('throws when constructed without a target', () => {
     expect(() => new PITR({})).toThrow(/requires a target/);
   });

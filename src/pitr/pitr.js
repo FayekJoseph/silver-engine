@@ -88,6 +88,44 @@ class PITR {
   }
 
   /**
+   * Compare two snapshots and evaluate the change between them — the trace
+   * that lets the tool, not a guess, report exactly what moved between two
+   * points in time. Direction is from A to B (A is the older baseline).
+   *
+   * @param {string} idA baseline snapshot
+   * @param {string} idB later snapshot
+   * @returns {{from: string, to: string, identical: boolean,
+   *            added: string[], removed: string[], modified: string[],
+   *            unchanged: number}}
+   */
+  compare(idA, idB) {
+    const a = this.store.readManifest(idA);
+    const b = this.store.readManifest(idB);
+    const inA = new Map(a.files.map((f) => [f.path, f.sha256]));
+    const inB = new Map(b.files.map((f) => [f.path, f.sha256]));
+
+    const added = [];
+    const modified = [];
+    let unchanged = 0;
+    for (const [path, sha] of inB) {
+      if (!inA.has(path)) added.push(path);
+      else if (inA.get(path) !== sha) modified.push(path);
+      else unchanged += 1;
+    }
+    const removed = [...inA.keys()].filter((path) => !inB.has(path));
+
+    return {
+      from: idA,
+      to: idB,
+      identical: a.fingerprint === b.fingerprint,
+      added: added.sort(),
+      removed: removed.sort(),
+      modified: modified.sort(),
+      unchanged,
+    };
+  }
+
+  /**
    * Verify a snapshot's stored contents against its manifest. This is the
    * "tool verification" step: it proves the snapshot itself has not been
    * tampered with or corrupted before it is ever used for recovery.

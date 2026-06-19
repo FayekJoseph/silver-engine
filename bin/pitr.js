@@ -8,6 +8,7 @@
 //   pitr list [--target <dir>]
 //   pitr verify <id> [--target <dir>]          # verify snapshot integrity
 //   pitr check <id> [--target <dir>]           # verify live target == snapshot
+//   pitr compare <idA> <idB> [--target <dir>]  # evaluate change A -> B
 //   pitr restore <id> [--no-prune] [--target <dir>]
 
 const { PITR } = require('../src/pitr');
@@ -68,6 +69,19 @@ function main(argv) {
       result.errors.forEach((e) => console.log(`  - ${e}`));
       return result.ok ? 0 : 1;
     }
+    case 'compare': {
+      const result = pitr.compare(rest[0], rest[1]);
+      console.log(`compare ${result.from}  ->  ${result.to}`);
+      if (result.identical) {
+        console.log('  identical (fingerprints match)');
+        return 0;
+      }
+      result.added.forEach((p) => console.log(`  + ${p}`));
+      result.removed.forEach((p) => console.log(`  - ${p}`));
+      result.modified.forEach((p) => console.log(`  ~ ${p}`));
+      console.log(`  (${result.unchanged} unchanged)`);
+      return 0;
+    }
     case 'restore': {
       const result = pitr.restore(rest[0], { prune: flags.prune !== false });
       console.log(`Recovered to ${result.id}`);
@@ -77,7 +91,7 @@ function main(argv) {
       return 0;
     }
     default:
-      console.error('Usage: pitr <snapshot|list|verify|check|restore> [options]');
+      console.error('Usage: pitr <snapshot|list|verify|check|compare|restore> [options]');
       return 2;
   }
 }

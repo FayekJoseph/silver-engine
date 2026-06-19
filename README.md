@@ -93,9 +93,10 @@ npm install                       # install dev dependencies (Jest)
 
 node bin/pitr.js snapshot --label "clean state"
 node bin/pitr.js list
-node bin/pitr.js verify  <snapshot-id>   # snapshot integrity (tamper check)
-node bin/pitr.js check   <snapshot-id>   # live target vs snapshot (drift check)
-node bin/pitr.js restore <snapshot-id>   # recover; add --no-prune to keep newer files
+node bin/pitr.js verify  <snapshot-id>           # snapshot integrity (tamper check)
+node bin/pitr.js check   <snapshot-id>           # live target vs snapshot (drift check)
+node bin/pitr.js compare <snapshot-A> <snapshot-B>  # evaluate change A -> B
+node bin/pitr.js restore <snapshot-id>           # recover; add --no-prune to keep newer files
 ```
 
 ### Programmatic API
@@ -108,6 +109,7 @@ const snap = pitr.snapshot({ label: 'clean state' });
 
 pitr.verifySnapshot(snap.id); // { ok, fingerprint, errors }
 pitr.verifyTarget(snap.id);   // { ok, errors } — drift detection
+pitr.compare(a.id, b.id);     // { identical, added, removed, modified, unchanged }
 pitr.restore(snap.id);        // { id, fingerprint, restored, pruned }
 ```
 
