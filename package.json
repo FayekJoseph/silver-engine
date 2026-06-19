@@ -1,0 +1,20 @@
+{
+  "name": "silver-engine",
+  "version": "0.1.0",
+  "description": "A modular engine built on three hearts: Identity, Integrity, and Support.",
+  "license": "MIT",
+  "bin": {
+    "pitr": "bin/pitr.js"
+  },
+  "main": "src/pitr/index.js",
+  "scripts": {
+    "test": "jest",
+    "pitr": "node bin/pitr.js"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
