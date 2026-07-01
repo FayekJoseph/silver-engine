@@ -212,12 +212,11 @@ else
   cat <<EOF
 
   ${BOLD}The launcher is installed but doesn't run on bare Termux.${RESET}
-  Switch to the proot method (installs a small Ubuntu userland where the
-  native binary runs correctly):
+  Claude Code's native core is a linux/glibc binary; Android/bionic can't run
+  it. Use the proot method instead (installs a small Ubuntu glibc userland and
+  a 'claude' launcher on the Termux side):
 
-      ${GREEN}pkg install -y proot-distro${RESET}
-      ${GREEN}proot-distro install ubuntu${RESET}
-      ${GREEN}proot-distro login ubuntu -- bash -lc 'apt-get update && apt-get install -y curl git ripgrep && curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && apt-get install -y nodejs && npm install -g @anthropic-ai/claude-code && claude --version'${RESET}
+      ${GREEN}bash scripts/termux-claude-proot.sh${RESET}
 
   Full walk-through: docs/TERMUX.md
 EOF

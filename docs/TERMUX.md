@@ -74,27 +74,38 @@ source ~/.zshrc
 
 ## Bug 3 (maybe) — the launcher runs but the core binary won't execute
 
-Claude Code's core is shipped as a **native binary** for `linux` built against
-**glibc**. Termux uses Android's **bionic** libc, so even after `install.cjs`
-places `claude`, the binary may fail to run bare. If `claude --version` errors
-out, use a minimal glibc userland via `proot-distro`:
+Symptom:
+
+```text
+% claude
+Error: claude native binary not installed.
+... the platform-native optional dependency was not downloaded (--omit=optional).
+```
+
+**Cause.** Claude Code's core is shipped as a **native binary** in a
+*platform-specific optional* npm package for `linux`, built against **glibc**.
+On Termux `process.platform === 'android'`, so npm **skips** that `linux`
+optional package entirely — the binary is never downloaded. And even if forced,
+glibc code can't run against Android's **bionic** libc. So running `install.cjs`
+by hand can't fix it either: there is no Android-native binary to install.
+
+**Fix.** Run Claude Code inside a minimal glibc userland via `proot-distro`.
+One command does it all (installs Ubuntu, Node, Claude Code, and a `claude`
+launcher on the Termux side):
+
+```bash
+bash scripts/termux-claude-proot.sh
+```
+
+Inside that Ubuntu userland `process.platform === 'linux'` and glibc is
+present, so the native binary downloads and runs correctly. After it finishes,
+just type `claude` in Termux. To do it by hand instead:
 
 ```bash
 pkg install -y proot-distro
 proot-distro install ubuntu
-proot-distro login ubuntu -- bash -lc '
-  apt-get update &&
-  apt-get install -y curl git ripgrep &&
-  curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - &&
-  apt-get install -y nodejs &&
-  npm install -g @anthropic-ai/claude-code &&
-  claude --version'
+proot-distro login ubuntu -- bash -lc 'apt-get update && apt-get install -y curl git ripgrep && curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && apt-get install -y nodejs && npm install -g @anthropic-ai/claude-code && claude --version'
 ```
-
-Inside that Ubuntu userland `process.platform === 'linux'` and glibc is
-present, so the native binary downloads and runs correctly. You can add a
-`claude` launcher on the Termux side that drops into the userland; see the end
-of `termux-setup.sh`'s output for the one-liners.
 
 ---
 
