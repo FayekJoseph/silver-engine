@@ -92,8 +92,14 @@ ok "Claude Code installed inside $DISTRO"
 # ----------------------------------------------------------------------------
 step "Clearing any broken bare-Termux install"
 command -v npm >/dev/null 2>&1 && npm uninstall -g @anthropic-ai/claude-code >/dev/null 2>&1 || true
-for stale in "$(npm config get prefix 2>/dev/null)/bin/claude" "$HOME/.npm-global/bin/claude"; do
-  if [ -e "$stale" ] || [ -L "$stale" ]; then rm -f "$stale" && info "Removed shadowing $stale"; fi
+# Cover every place a broken bare `claude` can live, including a symlink at
+# $PREFIX/bin/claude left by an old `npm -g`/pkg install that points at the
+# glibc claude.exe (which can't run on bionic and would shadow our launcher).
+for stale in \
+  "$(npm config get prefix 2>/dev/null)/bin/claude" \
+  "$HOME/.npm-global/bin/claude" \
+  "$PREFIX/bin/claude"; do
+  if [ -L "$stale" ] || [ -e "$stale" ]; then rm -f "$stale" && info "Removed shadowing $stale"; fi
 done
 ok "No conflicting bare install remains"
 
@@ -104,6 +110,9 @@ step "Adding a 'claude' launcher to Termux"
 # Typing `claude` drops into the userland and runs Claude Code, forwarding any
 # args and binding shared storage (if granted) so it can edit phone files.
 LAUNCHER="$PREFIX/bin/claude"
+# rm first: if $LAUNCHER is a symlink, `>` would write THROUGH it and clobber
+# the link target instead of replacing the launcher.
+rm -f "$LAUNCHER"
 cat > "$LAUNCHER" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
 # Launch Claude Code inside the $DISTRO (glibc) userland.
@@ -111,7 +120,7 @@ BIND=()
 if [ -d "\$HOME/storage/shared" ]; then
   BIND=(--bind "\$HOME/storage/shared:/root/shared")
 fi
-exec proot-distro login $DISTRO "\${BIND[@]}" -- bash -lc 'exec claude "\$@"' claude "\$@"
+exec proot-distro login $DISTRO "\${BIND[@]}" -- claude "\$@"
 EOF
 chmod +x "$LAUNCHER"
 ok "Created $LAUNCHER"
