@@ -22,6 +22,11 @@ shell rc (`~/.bashrc` when you actually use zsh). See
 [`docs/TERMUX.md`](docs/TERMUX.md) for the full explanation and the proot
 fallback.
 
+Want the Grok CLI too? `bash scripts/termux-grok-setup.sh` installs/updates
+`grok-dev` (fixing the `EEXIST` upgrade failure and the 410 "Live search
+deprecated" error) and wires up `GROK_API_KEY` **from your environment — the
+key is never written into the repo.**
+
 ---
 
 ## Repository Structure
