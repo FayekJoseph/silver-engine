@@ -8,6 +8,27 @@ The Silver Engine is a modular system designed with three foundational component
 
 ---
 
+## Running Claude Code in Termux (on a device)
+
+If `claude` won't install or run in Termux on your Android phone, use:
+
+```bash
+bash scripts/termux-setup.sh
+```
+
+It fixes the two common device bugs — npm skipping Claude Code's `postinstall`
+(so the `claude` launcher never lands) and PATH being written to the wrong
+shell rc (`~/.bashrc` when you actually use zsh). See
+[`docs/TERMUX.md`](docs/TERMUX.md) for the full explanation and the proot
+fallback.
+
+Want the Grok CLI too? `bash scripts/termux-grok-setup.sh` installs/updates
+`grok-dev` (fixing the `EEXIST` upgrade failure and the 410 "Live search
+deprecated" error) and wires up `GROK_API_KEY` **from your environment — the
+key is never written into the repo.**
+
+---
+
 ## Repository Structure
 
 ```plaintext
