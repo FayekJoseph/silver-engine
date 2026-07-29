@@ -125,6 +125,21 @@ EOF
 chmod +x "$LAUNCHER"
 ok "Created $LAUNCHER"
 
+# ----------------------------------------------------------------------------
+# 6. Verify Claude Code actually RUNS (not just that it is on PATH)
+# ----------------------------------------------------------------------------
+# `command -v claude` only proves the launcher exists — it does not prove the
+# glibc binary executes under proot. Run `claude --version` inside the userland
+# so a broken install fails loudly here instead of the first time you use it.
+step "Verifying Claude Code runs inside $DISTRO"
+if CC_VER="$(proot-distro login "$DISTRO" -- claude --version 2>&1)"; then
+  ok "Claude Code runs: $CC_VER"
+else
+  warn "Claude Code is installed but did not run cleanly:"
+  info "$CC_VER"
+  info "Re-run this script (it is idempotent), or see docs/TERMUX.md."
+fi
+
 step "All set \xf0\x9f\x8e\x89"
 cat <<EOF
 
