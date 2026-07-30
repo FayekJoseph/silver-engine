@@ -4,8 +4,14 @@ generated/
 
 # dependencies
 Dependencies.toml
+node_modules/
 
 # config files
 Config.toml
 # the config files used for testing, Uncomment the following line if you want to commit the test config files
 #!**/tests/Config.toml
+
+# runtime logs (keep .gitkeep but not actual log output)
+logs/*.log
+
+# lock file (optional – keep package-lock.json for reproducibility)

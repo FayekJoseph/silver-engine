@@ -1,0 +1,13 @@
+{
+  "name": "silver-engine",
+  "version": "1.0.0",
+  "description": "The Silver Engine – modular system with Identity, Integrity, and Support hearts.",
+  "main": "hearts/identity.js",
+  "scripts": {
+    "test": "jest --testPathPattern='tests/'"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  },
+  "license": "CC0-1.0"
+}
