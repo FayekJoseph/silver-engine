@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "DropboxDashMCP": {
+      "type": "http",
+      "url": "https://mcp.dropbox.com/dash"
+    }
+  }
+}
